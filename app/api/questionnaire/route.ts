@@ -78,86 +78,56 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import cookie from "cookie";
-import { verifyToken } from "@/utils/jwt";
-
-// 🔹 Vérification et récupération de l'utilisateur via le token
-const getUserFromToken = (req: NextRequest) => {
-  try {
-    const cookies = req.headers.get("cookie");
-    if (!cookies) return null;
-
-    const parsedCookies = cookie.parse(cookies);
-    const token = parsedCookies.token;
-    if (!token) return null;
-
-    return verifyToken(token);
-  } catch (error) {
-    console.error("❌ Erreur de vérification du token :", error);
-    return null;
-  }
-};
+import { verifyToken } from "../../../utils/jwt";
 
 // 🔹 Création d'un questionnaire
 export async function POST(req: NextRequest) {
+  console.log("📨 Requête POST reçue sur /api/questionnaire");
+
   try {
-    console.log("📨 Requête POST reçue sur /api/questionnaire");
-
-    // 🔍 Vérifier si l'utilisateur est authentifié
-    const user = getUserFromToken(req);
-    if (!user) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-    }
-
     const body = await req.json();
     const { title, questions } = body;
 
-    if (!title || !questions || !Array.isArray(questions)) {
-      return NextResponse.json({ error: "Données invalides" }, { status: 400 });
+    // 🔎 Vérification des cookies
+    const cookiesHeader = req.headers.get("cookie");
+    if (!cookiesHeader) {
+      console.log("❌ Aucun cookie trouvé !");
+      return NextResponse.json({ error: "Non authentifié (aucun cookie)" }, { status: 401 });
     }
 
-    // 📌 Création du questionnaire avec les questions associées
+    const parsedCookies = cookie.parse(cookiesHeader);
+    const token = parsedCookies.token;
+
+    if (!token) {
+      console.log("❌ Aucun token trouvé !");
+      return NextResponse.json({ error: "Token introuvable" }, { status: 401 });
+    }
+
+    // 🔎 Vérification du token
+    let decoded;
+    try {
+      decoded = verifyToken(token);
+      console.log("🔑 Token décodé avec succès :", decoded);
+    } catch (error) {
+      console.error("❌ Token invalide :", error);
+      return NextResponse.json({ error: "Token invalide ou expiré" }, { status: 401 });
+    }
+
+    // 📌 Création du questionnaire lié à l'utilisateur
     const questionnaire = await prisma.questionnaire.create({
       data: {
         title,
-        userId: user.id,
+        userId: decoded.id, // 🔹 Lien avec l'utilisateur authentifié
         questions: {
-          create: questions.map((q) => ({
-            text: q.text,
-            type: q.type,
-            options: q.options ? { create: q.options.map((opt) => ({ text: opt.text })) } : undefined,
-          })),
+          create: questions,
         },
       },
-      include: { questions: { include: { options: true } } },
+      include: { questions: true },
     });
 
     return NextResponse.json(questionnaire, { status: 201 });
   } catch (error) {
     console.error("❌ Erreur API /api/questionnaire [POST]:", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
-  }
-}
-
-// 🔹 Récupération de tous les questionnaires de l'utilisateur
-export async function GET(req: NextRequest) {
-  try {
-    console.log("📨 Requête GET reçue sur /api/questionnaire");
-
-    // 🔍 Vérifier si l'utilisateur est authentifié
-    const user = getUserFromToken(req);
-    if (!user) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-    }
-
-    // 📌 Récupérer uniquement les questionnaires de l'utilisateur
-    const questionnaires = await prisma.questionnaire.findMany({
-      where: { userId: user.id },
-      select: { id: true, title: true, createdAt: true },
-    });
-
-    return NextResponse.json(questionnaires, { status: 200 });
-  } catch (error) {
-    console.error("❌ Erreur API /api/questionnaire [GET]:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
