@@ -1,30 +1,3 @@
-// import jwt from 'jsonwebtoken';
-// import { NextRequest, NextResponse } from 'next/server';
-// import prisma from '@/lib/prisma';
-
-// const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
-
-// export async function POST(req: NextRequest) {
-//   try {
-//     const { email, password } = await req.json();
-
-//     const user = await prisma.user.findUnique({ where: { email } });
-//     if (!user) {
-//       return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 });
-//     }
-
-//     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-    
-//     const response = NextResponse.json({ message: 'Connexion réussie', token }, { status: 200 });
-//     response.cookies.set('auth_token', token, { httpOnly: true, secure: true, path: '/' });
-//     return response;
-//   } catch (error) {
-//     console.error("Erreur serveur:", error);
-//     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
-//   }
-// }
-
-
 import { NextResponse } from "next/server";
 import { comparePasswords } from "../../../../utils/auth"
 import { generateToken } from "../../../../utils/jwt";
