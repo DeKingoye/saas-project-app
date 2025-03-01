@@ -89,13 +89,19 @@ export async function POST(req: NextRequest) {
     const cookieHeader = req.headers.get("cookie") || "";
     console.log("🔎 Cookies reçus :", cookieHeader);
 
+    // 🛠 Vérification si le cookie est bien défini
+    if (!cookieHeader) {
+      console.error("❌ Aucun cookie trouvé.");
+      return NextResponse.json({ error: "Non authentifié (cookie manquant)" }, { status: 401 });
+    }
+
     const parsedCookies = cookie.parse(cookieHeader);
     console.log("🔎 Cookies parsés :", parsedCookies);
 
     const token = parsedCookies.token;
     if (!token) {
       console.error("❌ Aucun token trouvé après parsing.");
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+      return NextResponse.json({ error: "Non authentifié (token manquant)" }, { status: 401 });
     }
 
     // 🔍 Vérification et décodage du token
@@ -138,52 +144,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(questionnaire, { status: 201 });
   } catch (error) {
     console.error("❌ Erreur API /api/questionnaire [POST]:", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
-  }
-}
-
-// 🔹 Récupérer tous les questionnaires de l'utilisateur connecté
-export async function GET(req: NextRequest) {
-  try {
-    console.log("📨 Requête GET reçue sur /api/questionnaire");
-
-    // 🔍 Récupération des cookies
-    const cookieHeader = req.headers.get("cookie") || "";
-    console.log("🔎 Cookies reçus :", cookieHeader);
-
-    const parsedCookies = cookie.parse(cookieHeader);
-    console.log("🔎 Cookies parsés :", parsedCookies);
-
-    const token = parsedCookies.token;
-    if (!token) {
-      console.error("❌ Aucun token trouvé après parsing.");
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-    }
-
-    // 🔍 Vérification et décodage du token
-    let decoded;
-    try {
-      decoded = verifyToken(token);
-      console.log("✅ Token décodé :", decoded);
-    } catch (error) {
-      console.error("❌ Erreur de vérification du token :", error);
-      return NextResponse.json({ error: "Token invalide ou expiré" }, { status: 401 });
-    }
-
-    // 🔍 Vérification de la connexion à la base de données
-    await prisma.$connect();
-    console.log("✅ Connexion à la base de données réussie");
-
-    // 📌 Récupération des questionnaires de l'utilisateur
-    const questionnaires = await prisma.questionnaire.findMany({
-      where: { userId: decoded.id }, // 🔹 Filtrage par utilisateur
-      select: { id: true, title: true, createdAt: true },
-    });
-
-    console.log("✅ Questionnaires récupérés :", questionnaires.length);
-    return NextResponse.json(questionnaires, { status: 200 });
-  } catch (error) {
-    console.error("❌ Erreur API /api/questionnaire [GET]:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
