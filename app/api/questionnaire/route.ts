@@ -83,30 +83,50 @@ import { verifyToken } from "@/utils/jwt";
 // 🔹 Créer un nouveau questionnaire
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { title, questions } = body;
+    console.log("📨 Requête POST reçue sur /api/questionnaire");
 
-    // 🔎 Récupérer le token JWT depuis les cookies
-    const cookies = req.headers.get("cookie");
-    if (!cookies) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    // 🔍 Récupération des cookies
+    const cookieHeader = req.headers.get("cookie") || "";
+    console.log("🔎 Cookies reçus :", cookieHeader);
 
-    const parsedCookies = cookie.parse(cookies);
+    const parsedCookies = cookie.parse(cookieHeader);
+    console.log("🔎 Cookies parsés :", parsedCookies);
+
     const token = parsedCookies.token;
-    if (!token) return NextResponse.json({ error: "Token introuvable" }, { status: 401 });
+    if (!token) {
+      console.error("❌ Aucun token trouvé après parsing.");
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
 
-    // 🔎 Vérifier le token et récupérer l'ID de l'utilisateur
+    // 🔍 Vérification et décodage du token
     let decoded;
     try {
       decoded = verifyToken(token);
+      console.log("✅ Token décodé :", decoded);
     } catch (error) {
+      console.error("❌ Erreur de vérification du token :", error);
       return NextResponse.json({ error: "Token invalide ou expiré" }, { status: 401 });
     }
 
-    // 📌 Créer le questionnaire avec l'ID de l'utilisateur
+    // 🔍 Vérification de la connexion à la base de données
+    await prisma.$connect();
+    console.log("✅ Connexion à la base de données réussie");
+
+    // 🔍 Extraction du corps de la requête
+    const body = await req.json();
+    console.log("📨 Données reçues :", body);
+
+    const { title, questions } = body;
+    if (!title || !questions) {
+      console.error("❌ Données invalides (title ou questions manquants)");
+      return NextResponse.json({ error: "Données invalides" }, { status: 400 });
+    }
+
+    // 📌 Création du questionnaire
     const questionnaire = await prisma.questionnaire.create({
       data: {
         title,
-        userId: decoded.id, // 🔹 Lien avec l'utilisateur
+        userId: decoded.id, // 🔹 Associer le questionnaire à l'utilisateur
         questions: {
           create: questions,
         },
@@ -114,6 +134,7 @@ export async function POST(req: NextRequest) {
       include: { questions: true },
     });
 
+    console.log("✅ Questionnaire créé avec succès :", questionnaire);
     return NextResponse.json(questionnaire, { status: 201 });
   } catch (error) {
     console.error("❌ Erreur API /api/questionnaire [POST]:", error);
@@ -124,32 +145,42 @@ export async function POST(req: NextRequest) {
 // 🔹 Récupérer tous les questionnaires de l'utilisateur connecté
 export async function GET(req: NextRequest) {
   try {
-    // 🔎 Récupérer le token JWT depuis les cookies
-    const cookies = req.headers.get("cookie");
-    if (!cookies) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    console.log("📨 Requête GET reçue sur /api/questionnaire");
 
-    const parsedCookies = cookie.parse(cookies);
+    // 🔍 Récupération des cookies
+    const cookieHeader = req.headers.get("cookie") || "";
+    console.log("🔎 Cookies reçus :", cookieHeader);
+
+    const parsedCookies = cookie.parse(cookieHeader);
+    console.log("🔎 Cookies parsés :", parsedCookies);
+
     const token = parsedCookies.token;
-    if (!token) return NextResponse.json({ error: "Token introuvable" }, { status: 401 });
+    if (!token) {
+      console.error("❌ Aucun token trouvé après parsing.");
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
 
-    // 🔎 Vérifier le token et récupérer l'ID de l'utilisateur
+    // 🔍 Vérification et décodage du token
     let decoded;
     try {
       decoded = verifyToken(token);
+      console.log("✅ Token décodé :", decoded);
     } catch (error) {
+      console.error("❌ Erreur de vérification du token :", error);
       return NextResponse.json({ error: "Token invalide ou expiré" }, { status: 401 });
     }
 
-    // 📌 Récupérer uniquement les questionnaires de l'utilisateur
+    // 🔍 Vérification de la connexion à la base de données
+    await prisma.$connect();
+    console.log("✅ Connexion à la base de données réussie");
+
+    // 📌 Récupération des questionnaires de l'utilisateur
     const questionnaires = await prisma.questionnaire.findMany({
       where: { userId: decoded.id }, // 🔹 Filtrage par utilisateur
-      select: { 
-        id: true, 
-        title: true,
-        createdAt: true,
-      },
+      select: { id: true, title: true, createdAt: true },
     });
 
+    console.log("✅ Questionnaires récupérés :", questionnaires.length);
     return NextResponse.json(questionnaires, { status: 200 });
   } catch (error) {
     console.error("❌ Erreur API /api/questionnaire [GET]:", error);
