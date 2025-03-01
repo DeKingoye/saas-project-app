@@ -1,9 +1,67 @@
+# # name: Deploy to Google Cloud
+
+# # on:
+# #   push:
+# #     branches:
+# #       - master  # 🚀 Se déploie uniquement sur master
+
+# # env:
+# #   PROJECT_ID: saas-project-452010
+# #   REGION: europe-west1
+# #   SERVICE_NAME: my-nextjs-app
+# #   IMAGE_NAME: europe-west1-docker.pkg.dev/saas-project-452010/nextjs-app/mynextjs-app
+
+# # jobs:
+# #   deploy:
+# #     name: Deploy to GCP
+# #     runs-on: ubuntu-latest
+
+# #     steps:
+# #       - name: 🚀 Checkout code
+# #         uses: actions/checkout@v3
+
+# #       - name: 🔑 Authenticate with Google Cloud
+# #         uses: google-github-actions/auth@v1
+# #         with:
+# #           credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+# #       - name: 📦 Configure Docker
+# #         run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+# #       - name: 🛠 Build and push Docker image
+# #         run: |
+# #           docker build -t $IMAGE_NAME:$GITHUB_SHA .
+# #           docker push $IMAGE_NAME:$GITHUB_SHA
+# #           docker tag $IMAGE_NAME:$GITHUB_SHA $IMAGE_NAME:latest
+# #           docker push $IMAGE_NAME:latest
+
+# #       - name: 🔄 Update Compute Engine instance template
+# #         run: |
+# #           gcloud compute instance-templates create-with-container my-nextjs-template-$(date +%s) \
+# #             --machine-type=e2-medium \
+# #             --tags=http-server,https-server \
+# #             --image-family=cos-stable \
+# #             --image-project=cos-cloud \
+# #             --region=$REGION \
+# #             --container-image=$IMAGE_NAME:latest \
+# #             --container-env=DATABASE_URL=${{ secrets.DATABASE_URL }},JWT_SECRET=${{ secrets.JWT_SECRET }}
+
+# #       - name: 🔄 Update Managed Instance Group
+# #         run: |
+# #           gcloud compute instance-groups managed rolling-action start-update my-nextjs-group \
+# #             --version=template=my-nextjs-template-$(date +%s) \
+# #             --region=$REGION
+
+# #       - name: ✅ Deployment Complete
+# #         run: echo "Deployment successful 🎉"
+
+
 # name: Deploy to Google Cloud
 
 # on:
 #   push:
 #     branches:
-#       - master  # 🚀 Se déploie uniquement sur master
+#       - master  # 🚀 Déploiement uniquement sur master
 
 # env:
 #   PROJECT_ID: saas-project-452010
@@ -30,7 +88,10 @@
 
 #       - name: 🛠 Build and push Docker image
 #         run: |
-#           docker build -t $IMAGE_NAME:$GITHUB_SHA .
+#           docker build \
+#             --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+#             --build-arg JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+#             -t $IMAGE_NAME:$GITHUB_SHA .
 #           docker push $IMAGE_NAME:$GITHUB_SHA
 #           docker tag $IMAGE_NAME:$GITHUB_SHA $IMAGE_NAME:latest
 #           docker push $IMAGE_NAME:latest
