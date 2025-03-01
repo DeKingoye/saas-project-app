@@ -8,20 +8,22 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(uuid())
-  email     String     @unique
-  name      String?
-  password  String
-  createdAt DateTime   @default(now())
-  responses Response[]
+  id            String          @id @default(uuid()) @db.Uuid
+  email         String          @unique
+  name          String?
+  password      String
+  createdAt     DateTime        @default(now())
+  Questionnaire Questionnaire[]
+  responses     Response[]
 }
 
 model Questionnaire {
   id        String     @id @default(uuid())
   title     String
   createdAt DateTime   @default(now())
-  userId    Int        @default(1)
+  userId    String?    @db.Uuid
   questions Question[]
+  User      User?      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model Question {
