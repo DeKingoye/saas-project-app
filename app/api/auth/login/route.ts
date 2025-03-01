@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { comparePasswords } from "../../../../utils/auth"
+import { comparePasswords } from "../../../../utils/auth";
 import { generateToken } from "../../../../utils/jwt";
 import prisma from "@/lib/prisma";
 
@@ -8,10 +8,14 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
+    if (!user) {
+      return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
+    }
 
     const isMatch = await comparePasswords(password, user.password);
-    if (!isMatch) return NextResponse.json({ error: "Mot de passe incorrect" }, { status: 401 });
+    if (!isMatch) {
+      return NextResponse.json({ error: "Mot de passe incorrect" }, { status: 401 });
+    }
 
     // Générer le token JWT
     const token = generateToken({ id: user.id, name: user.name, email: user.email });
@@ -22,6 +26,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error) {
+    console.error("Erreur serveur:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

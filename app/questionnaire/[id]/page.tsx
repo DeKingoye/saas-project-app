@@ -30,7 +30,7 @@ export default function QuestionnairePage() {
   }
 
   async function handleSubmit() {
-    const userEmail = "yannmouandza3@gmail.com"; // Remplacer par l'email de l'utilisateur connecté
+    const userEmail = "billy@gmail.com"; // Remplacer par l'email de l'utilisateur connecté
 
     const formattedAnswers = Object.keys(answers).map(questionId => ({
       questionId,

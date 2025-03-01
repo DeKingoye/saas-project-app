@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
 // Récupérer un questionnaire spécifique par ID
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest) {
   try {
-    const { id } = params;
+    const url = new URL(req.url);
+    const id = url.pathname.split('/').pop(); // Récupère l'ID depuis l'URL
+
+    if (!id) {
+      return NextResponse.json({ error: "ID manquant" }, { status: 400 });
+    }
+
     const questionnaire = await prisma.questionnaire.findUnique({
       where: { id },
       include: { questions: true },
@@ -22,10 +28,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // Supprimer un questionnaire spécifique par ID
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest) {
   try {
-    const { id } = params;
+    const url = new URL(req.url);
+    const id = url.pathname.split('/').pop(); // Récupère l'ID depuis l'URL
+
+    if (!id) {
+      return NextResponse.json({ error: "ID manquant" }, { status: 400 });
+    }
+
     await prisma.questionnaire.delete({ where: { id } });
+
     return NextResponse.json({ message: "Questionnaire supprimé avec succès" }, { status: 200 });
   } catch (error) {
     console.error("Erreur lors de la suppression :", error);
