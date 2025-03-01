@@ -18,7 +18,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-blue-500 p-4 flex justify-between items-center text-white">
-      <h1 className="text-lg font-bold">FormYann</h1>
+      <h1 className="text-lg font-bold">FormOrd</h1>
 
       {user ? (
         <div className="flex items-center gap-4">
