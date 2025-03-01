@@ -70,7 +70,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { generateToken } from "@/utils/jwt"; // Assurez-vous d'avoir cette fonction
+import { generateToken } from "../../../../utils/jwt"; // Assurez-vous d'avoir cette fonction
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
@@ -82,26 +82,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email et mot de passe requis" }, { status: 400 });
     }
 
-    // Vérification de l'utilisateur
+    // 🔹 Vérification de l'utilisateur
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
 
-    // Vérification du mot de passe
+    // 🔹 Vérification du mot de passe
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return NextResponse.json({ error: "Mot de passe incorrect" }, { status: 401 });
     }
 
-    // Génération du token
+    // 🔹 Génération du token JWT
     const token = generateToken({ id: user.id, email: user.email });
 
-    // Définition du cookie sécurisé
-    const response = NextResponse.json({ message: "Connexion réussie" }, { status: 200 });
+    // 🔹 Suppression des anciens cookies conflictuels
+    const response = NextResponse.json({ message: "Connexion réussie", user }, { status: 200 });
+
     response.headers.set(
       "Set-Cookie",
-      `token=${token}; Path=/; HttpOnly; Secure; SameSite=None; Domain=.ymouandza.fr; Max-Age=86400`
+      [
+        // Supprime tout ancien cookie `token`
+        `token=; Path=/; HttpOnly; Secure; SameSite=None; Domain=.ymouandza.fr; Max-Age=0`,
+        // Définit le nouveau token avec un délai de 24h
+        `token=${token}; Path=/; HttpOnly; Secure; SameSite=None; Domain=.ymouandza.fr; Max-Age=86400`
+      ].join(", ")
     );
 
     return response;
