@@ -161,13 +161,9 @@ export async function POST(req: NextRequest) {
 // 📌 Récupérer les questionnaires créés par l'utilisateur connecté
 export async function GET(req: NextRequest) {
   try {
-    const cookies = req.headers.get("cookie");
-    if (!cookies) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-    }
+    const cookieStore = await cookies(); 
+    const token = cookieStore.get("token")?.value;
 
-    const parsedCookies = cookie.parse(cookies);
-    const token = parsedCookies.token;
     if (!token) {
       return NextResponse.json({ error: "Token introuvable" }, { status: 401 });
     }
