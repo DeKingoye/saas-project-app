@@ -127,6 +127,8 @@ import cookie from "cookie";
 export async function POST(req: NextRequest) {
   try {
     const cookies = req.headers.get("cookie");
+    console.log("GET du cookie", cookies)
+    console.log("package cookie", cookie)
     if (!cookies) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
