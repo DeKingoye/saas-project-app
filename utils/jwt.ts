@@ -1,3 +1,26 @@
+// // // // import jwt from "jsonwebtoken";
+
+// // // // const JWT_SECRET = process.env.JWT_SECRET as string;
+
+// // // // if (!JWT_SECRET) {
+// // // //   throw new Error("⚠️ JWT_SECRET is not défini dans .env.local");
+// // // // }
+
+// // // // // 🎟 Générer un token JWT
+// // // // export function generateToken(payload: object): string {
+// // // //   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" }); // Expire en 1 jour
+// // // // }
+
+// // // // // 🔍 Vérifier et décoder un token JWT
+// // // // export function verifyToken(token: string): any {
+// // // //   try {
+// // // //     return jwt.verify(token, JWT_SECRET);
+// // // //   } catch (error) {
+// // // //     return null;
+// // // //   }
+// // // // }
+
+
 // // // import jwt from "jsonwebtoken";
 
 // // // const JWT_SECRET = process.env.JWT_SECRET as string;
@@ -8,7 +31,7 @@
 
 // // // // 🎟 Générer un token JWT
 // // // export function generateToken(payload: object): string {
-// // //   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" }); // Expire en 1 jour
+// // //   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
 // // // }
 
 // // // // 🔍 Vérifier et décoder un token JWT
@@ -24,14 +47,13 @@
 // // import jwt from "jsonwebtoken";
 
 // // const JWT_SECRET = process.env.JWT_SECRET as string;
-
 // // if (!JWT_SECRET) {
-// //   throw new Error("⚠️ JWT_SECRET is not défini dans .env.local");
+// //   throw new Error("⚠️ JWT_SECRET n'est pas défini dans .env.local");
 // // }
 
 // // // 🎟 Générer un token JWT
 // // export function generateToken(payload: object): string {
-// //   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+// //   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" }); // Expire en 1 jour
 // // }
 
 // // // 🔍 Vérifier et décoder un token JWT
@@ -39,16 +61,16 @@
 // //   try {
 // //     return jwt.verify(token, JWT_SECRET);
 // //   } catch (error) {
-// //     return null;
+// //     throw new Error("Token invalide");
 // //   }
 // // }
-
 
 // import jwt from "jsonwebtoken";
 
 // const JWT_SECRET = process.env.JWT_SECRET as string;
+
 // if (!JWT_SECRET) {
-//   throw new Error("⚠️ JWT_SECRET n'est pas défini dans .env.local");
+//   throw new Error("⚠️ JWT_SECRET is not défini dans .env.local");
 // }
 
 // // 🎟 Générer un token JWT
@@ -61,28 +83,46 @@
 //   try {
 //     return jwt.verify(token, JWT_SECRET);
 //   } catch (error) {
-//     throw new Error("Token invalide");
+//     return null;
 //   }
 // }
 
+
 import jwt from "jsonwebtoken";
 
+// 📌 Vérifier que la clé secrète JWT est bien définie
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 if (!JWT_SECRET) {
-  throw new Error("⚠️ JWT_SECRET is not défini dans .env.local");
+  throw new Error("❌ ERREUR: JWT_SECRET n'est pas défini dans .env !");
 }
 
 // 🎟 Générer un token JWT
 export function generateToken(payload: object): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" }); // Expire en 1 jour
+  try {
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" }); // Expire en 1 jour
+  } catch (error: any) {
+    console.error("❌ Erreur lors de la génération du token JWT:", error.message);
+    throw new Error("Erreur interne lors de la création du token.");
+  }
 }
 
 // 🔍 Vérifier et décoder un token JWT
 export function verifyToken(token: string): any {
   try {
     return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
+  } catch (error: any) {
+    console.error("❌ Erreur de vérification du token JWT:", error.message);
+    return null; // Retourne `null` en cas d'erreur
+  }
+}
+
+// 🛠 Décoder un token sans vérification de la signature (utile pour debug)
+export function decodeToken(token: string): any {
+  try {
+    return jwt.decode(token);
+  } catch (error: any) {
+    console.error("❌ Erreur de décodage du token JWT:", error.message);
     return null;
   }
 }
