@@ -46,7 +46,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/utils/jwt";
-import cookie from "cookie";
+import { cookies } from "next/headers";
 
 
 export async function middleware(req: NextRequest) {
@@ -58,18 +58,16 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
 
-  const cookies = req.headers.get("cookie") || ""; // ✅ Évite `undefined`
-  const parsedCookies = cookie.parse(cookies);
-
-
-  if (!parsedCookies.token) {
+  if (!token) {
     return NextResponse.redirect(new URL("/auth/sign-in", req.url));
   }
 
 
   try {
-    verifyToken(parsedCookies.token);
+    verifyToken(token);
     return NextResponse.next();
   } catch (error) {
     return NextResponse.redirect(new URL("/auth/sign-in", req.url));

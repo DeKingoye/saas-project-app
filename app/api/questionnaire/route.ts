@@ -121,20 +121,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyToken } from "@/utils/jwt";
-import cookie from "cookie";
+import { cookies } from "next/headers";
 
 // 📌 Créer un questionnaire (Uniquement pour les utilisateurs connectés)
 export async function POST(req: NextRequest) {
   try {
-    const cookies = req.headers.get("cookie");
-    console.log("GET du cookie", cookies)
-    console.log("package cookie", cookie)
-    if (!cookies) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-    }
+    const cookieStore = await cookies(); 
+    const token = cookieStore.get("token")?.value;
 
-    const parsedCookies = cookie.parse(cookies);
-    const token = parsedCookies.token;
     if (!token) {
       return NextResponse.json({ error: "Token introuvable" }, { status: 401 });
     }

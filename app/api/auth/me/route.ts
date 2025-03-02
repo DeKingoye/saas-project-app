@@ -1,19 +1,12 @@
 import { NextResponse } from "next/server";
 import { verifyToken } from "@/utils/jwt";
 import prisma from "@/lib/prisma";
-import cookie from "cookie";
+import { cookies } from "next/headers";
 
 export async function GET(req: Request) {
   try {
-    // Lire les cookies
-    const cookies = req.headers.get("cookie");
-    if (!cookies) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-    }
-
-    // Extraire le token JWT
-    const parsedCookies = cookie.parse(cookies);
-    const token = parsedCookies.token;
+    const cookieStore = await cookies(); 
+    const token = cookieStore.get("token")?.value;
 
     if (!token) {
       return NextResponse.json({ error: "Token introuvable" }, { status: 401 });
