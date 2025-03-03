@@ -23,7 +23,7 @@ export default function AllQuestionnairesPage() {
     try {
       const res = await fetch('/api/questionnaire', {
         method: 'GET',
-        credentials: 'include', // 🔥 Envoie les cookies JWT
+        credentials: 'include',
       });
 
       const text = await res.text();

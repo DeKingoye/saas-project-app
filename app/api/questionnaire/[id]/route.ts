@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// Récupérer un questionnaire spécifique par ID
+
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);

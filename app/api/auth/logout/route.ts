@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export const runtime = "nodejs"; // ✅ Force l'utilisation de Node.js Runtime
+export const runtime = "nodejs"; 
 
 export async function GET() {
   const response = NextResponse.json({ success: true });

@@ -49,7 +49,7 @@ export default function SignInPage() {
           </button>
         </form>
 
-        {/* 🔵 Ajouter un lien vers Sign Up */}
+    
         <p className="text-center mt-4">
           Pas encore de compte ?{" "}
           <Link href="/auth/sign-up" className="text-blue-500 hover:underline">

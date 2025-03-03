@@ -13,7 +13,7 @@ export default function Navbar() {
     router.push("/auth/sign-in");
   };
 
-  // 🔴 Pendant le chargement, ne rien afficher
+
   if (isLoading) return null;
 
   return (
