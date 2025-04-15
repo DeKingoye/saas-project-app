@@ -1,3 +1,70 @@
+# name: Deploy to Google Cloud
+
+# on:
+#   push:
+#     branches:
+#       - master  # 🚀 Déploiement uniquement sur master
+
+# env:
+#   PROJECT_ID: saas-project-452010
+#   REGION: europe-west1
+#   SERVICE_NAME: my-nextjs-app
+#   IMAGE_NAME: europe-west1-docker.pkg.dev/saas-project-452010/nextjs-app/mynextjs-app
+
+# jobs:
+#   deploy:
+#     name: Deploy to GCP
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: 🚀 Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: 🔑 Authenticate with Google Cloud
+#         uses: google-github-actions/auth@v1
+#         with:
+#           credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+#       - name: 📦 Configure Docker
+#         run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+#       - name: 🛠 Build and push Docker image
+#         run: |
+#           docker build \
+#             --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+#             --build-arg JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+#             -t $IMAGE_NAME:$GITHUB_SHA .
+#           docker push $IMAGE_NAME:$GITHUB_SHA
+#           docker tag $IMAGE_NAME:$GITHUB_SHA $IMAGE_NAME:latest
+#           docker push $IMAGE_NAME:latest
+
+#       - name: 🔄 Create Instance Template
+#         run: |
+#           TEMPLATE_NAME="my-nextjs-template-$(date +%s)"
+#           echo "TEMPLATE_NAME=$TEMPLATE_NAME" >> $GITHUB_ENV
+
+#           gcloud compute instance-templates create-with-container $TEMPLATE_NAME \
+#             --machine-type=e2-medium \
+#             --tags=http-server,https-server \
+#             --image-family=cos-stable \
+#             --image-project=cos-cloud \
+#             --region=$REGION \
+#             --container-image=$IMAGE_NAME:latest \
+#             --container-env=DATABASE_URL=${{ secrets.DATABASE_URL }},JWT_SECRET=${{ secrets.JWT_SECRET }}
+
+#       - name: ⏳ Wait for Instance Template Creation
+#         run: sleep 20  # Pause pour s'assurer que le template est bien propagé
+
+#       - name: 🔄 Update Managed Instance Group
+#         run: |
+#           gcloud compute instance-groups managed rolling-action start-update my-nextjs-group \
+#             --version=template=$TEMPLATE_NAME \
+#             --region=$REGION
+
+#       - name: ✅ Deployment Complete
+#         run: echo "Deployment successful 🎉"
+
+
 name: Deploy to Google Cloud
 
 on:
@@ -50,7 +117,7 @@ jobs:
             --image-project=cos-cloud \
             --region=$REGION \
             --container-image=$IMAGE_NAME:latest \
-            --container-env=DATABASE_URL=${{ secrets.DATABASE_URL }},JWT_SECRET=${{ secrets.JWT_SECRET }}
+            --container-env="DATABASE_URL=${{ secrets.DATABASE_URL }},JWT_SECRET=${{ secrets.JWT_SECRET }}"
 
       - name: ⏳ Wait for Instance Template Creation
         run: sleep 20  # Pause pour s'assurer que le template est bien propagé
