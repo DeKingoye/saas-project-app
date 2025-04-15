@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const id = url.pathname.split('/').pop(); // Récupère l'ID depuis l'URL
+    const id = url.pathname.split('/').pop(); 
 
     if (!id) {
       return NextResponse.json({ error: "ID manquant" }, { status: 400 });
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// Supprimer un questionnaire spécifique par ID
+
 export async function DELETE(req: NextRequest) {
   try {
     const url = new URL(req.url);

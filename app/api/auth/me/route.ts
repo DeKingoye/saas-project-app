@@ -25,7 +25,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ user });
   } catch (error) {
-    console.error("❌ Erreur serveur:", error);
+    console.error(" Erreur serveur:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

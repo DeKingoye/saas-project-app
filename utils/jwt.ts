@@ -1,103 +1,13 @@
-// // // // import jwt from "jsonwebtoken";
-
-// // // // const JWT_SECRET = process.env.JWT_SECRET as string;
-
-// // // // if (!JWT_SECRET) {
-// // // //   throw new Error("⚠️ JWT_SECRET is not défini dans .env.local");
-// // // // }
-
-// // // // // 🎟 Générer un token JWT
-// // // // export function generateToken(payload: object): string {
-// // // //   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" }); // Expire en 1 jour
-// // // // }
-
-// // // // // 🔍 Vérifier et décoder un token JWT
-// // // // export function verifyToken(token: string): any {
-// // // //   try {
-// // // //     return jwt.verify(token, JWT_SECRET);
-// // // //   } catch (error) {
-// // // //     return null;
-// // // //   }
-// // // // }
-
-
-// // // import jwt from "jsonwebtoken";
-
-// // // const JWT_SECRET = process.env.JWT_SECRET as string;
-
-// // // if (!JWT_SECRET) {
-// // //   throw new Error("⚠️ JWT_SECRET is not défini dans .env.local");
-// // // }
-
-// // // // 🎟 Générer un token JWT
-// // // export function generateToken(payload: object): string {
-// // //   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
-// // // }
-
-// // // // 🔍 Vérifier et décoder un token JWT
-// // // export function verifyToken(token: string): any {
-// // //   try {
-// // //     return jwt.verify(token, JWT_SECRET);
-// // //   } catch (error) {
-// // //     return null;
-// // //   }
-// // // }
-
-
-// // import jwt from "jsonwebtoken";
-
-// // const JWT_SECRET = process.env.JWT_SECRET as string;
-// // if (!JWT_SECRET) {
-// //   throw new Error("⚠️ JWT_SECRET n'est pas défini dans .env.local");
-// // }
-
-// // // 🎟 Générer un token JWT
-// // export function generateToken(payload: object): string {
-// //   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" }); // Expire en 1 jour
-// // }
-
-// // // 🔍 Vérifier et décoder un token JWT
-// // export function verifyToken(token: string): any {
-// //   try {
-// //     return jwt.verify(token, JWT_SECRET);
-// //   } catch (error) {
-// //     throw new Error("Token invalide");
-// //   }
-// // }
-
-// import jwt from "jsonwebtoken";
-
-// const JWT_SECRET = process.env.JWT_SECRET as string;
-
-// if (!JWT_SECRET) {
-//   throw new Error("⚠️ JWT_SECRET is not défini dans .env.local");
-// }
-
-// // 🎟 Générer un token JWT
-// export function generateToken(payload: object): string {
-//   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" }); // Expire en 1 jour
-// }
-
-// // 🔍 Vérifier et décoder un token JWT
-// export function verifyToken(token: string): any {
-//   try {
-//     return jwt.verify(token, JWT_SECRET);
-//   } catch (error) {
-//     return null;
-//   }
-// }
-
-
 import jwt from "jsonwebtoken";
 
-// 📌 Vérifier que la clé secrète JWT est bien définie
+// Vérifier que la clé secrète JWT est bien définie
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 if (!JWT_SECRET) {
-  throw new Error("❌ ERREUR: JWT_SECRET n'est pas défini dans .env !");
+  throw new Error("ERREUR: JWT_SECRET n'est pas défini dans .env !");
 }
 
-// 🎟 Générer un token JWT
+// Générer un token JWT
 export function generateToken(payload: object): string {
   try {
     return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" }); // Expire en 1 jour
@@ -107,12 +17,12 @@ export function generateToken(payload: object): string {
   }
 }
 
-// 🔍 Vérifier et décoder un token JWT
+// Vérifier et décoder un token JWT
 export function verifyToken(token: string): any {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (error: any) {
-    console.error("❌ Erreur de vérification du token JWT:", error.message);
+    // console.error("Erreur de vérification du token JWT:", error.message);
     return null; // Retourne `null` en cas d'erreur
   }
 }
@@ -122,7 +32,7 @@ export function decodeToken(token: string): any {
   try {
     return jwt.decode(token);
   } catch (error: any) {
-    console.error("❌ Erreur de décodage du token JWT:", error.message);
+    console.error("Erreur de décodage du token JWT:", error.message);
     return null;
   }
 }

@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error("❌ Erreur lors de la connexion:", error);
+    console.error(" Erreur lors de la connexion:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

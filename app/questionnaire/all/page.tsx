@@ -31,7 +31,7 @@ export default function AllQuestionnairesPage() {
         const data = JSON.parse(text);
         setQuestionnaires(data);
       } catch (err) {
-        console.error("🔴 Erreur de parsing JSON :", text);
+        console.error(" Erreur de parsing JSON :", text);
         throw new Error("Le serveur a retourné une réponse invalide.");
       }
     } catch (err: any) {

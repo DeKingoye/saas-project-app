@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 export async function middleware(req: NextRequest) {
   const publicRoutes = ["/api/auth/register", "/api/auth/login"];
 
-  // ✅ Laisse passer les routes publiques
+  
   if (publicRoutes.includes(req.nextUrl.pathname)) {
     return NextResponse.next();
   }
@@ -21,7 +21,7 @@ export async function middleware(req: NextRequest) {
     verifyToken(token);
     return NextResponse.next();
   } catch (error) {
-    console.error("❌ Erreur Middleware:", error);
+    console.error(" Erreur Middleware:", error);
     return NextResponse.redirect(new URL("/auth/sign-in", req.url));
   }
 }
@@ -29,6 +29,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/api/:path*",
-    "/questionnaire/:path*", // Protège les questionnaires
+    "/questionnaire/:path*",
   ],
 };
